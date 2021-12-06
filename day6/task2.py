@@ -2,7 +2,6 @@
 with open('input.txt', 'r') as f:
 
   fishes = [int(x) for x in f.readline().split(',')]
-
   timers = [0]*9
 
   for fish in fishes:
