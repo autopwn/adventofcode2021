@@ -18,8 +18,8 @@ def check_neigbours(px, py, area):
     min = True
     for x,y in iterate_neighbours(px, py, area):
         if area[x][y] <= area[px][py]:
-            min = False
-    return int(area[px][py]) + 1 if min else 0
+            return 0
+    return int(area[px][py]) + 1
 
 def find_basin(px, py, area, basin = set()):
 
@@ -39,17 +39,14 @@ def task1(area):
 
     sum = 0
     for x in range(len(area)):
-        row = [i for i in lines[x]]
         for y in range(len(area[0])):
-            risk = check_neigbours(x, y, area)
-            sum += risk
+            sum += check_neigbours(x, y, area)
     print(sum)
 
 def task2(area):
 
     basins = []
     for x in range(len(area)):
-        row = [i for i in lines[x]]
         for y in range(len(area[0])):
             risk = check_neigbours(x, y, area)
             if risk > 0:
@@ -64,8 +61,7 @@ with open('input.txt', 'r') as f:
     h = len(lines[0])
     area = [[0 for x in range(h)] for y in range(w)] 
     for x in range(w):
-        row = [i for i in lines[x]]
         for y in range(h):
-            area[x][y] = int(row[y])
+            area[x][y] = int(lines[x][y])
     task1(area)
     task2(area)
