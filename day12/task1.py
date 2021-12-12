@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 from collections import defaultdict
 
-def find_paths(cave, second_visit = None, path = []):
+def find_paths(cave, redeemed_2nd_visit = True, path = []):
 
     if cave.islower() and cave not in ['start', 'end'] and cave in path:
-        if cave != second_visit:
+        if redeemed_2nd_visit:
             return
-        second_visit = None
+        redeemed_2nd_visit = True
 
     if cave == 'end':
         paths.add(tuple(path))
         return
 
     for adjacent in [c for c in caves[cave] if c != 'start']:
-        find_paths(adjacent, second_visit, path + [cave])
+        find_paths(adjacent, redeemed_2nd_visit, path + [cave])
 
 with open('input.txt', 'r') as f:
 
@@ -29,7 +29,5 @@ with open('input.txt', 'r') as f:
 
     # task 2
     paths = set()
-    for cave in caves:
-        if cave.islower() and cave not in ['start', 'end']:
-            find_paths('start', cave)
+    find_paths('start', False)
     print(f"Task 2:  {len(paths)} paths")
