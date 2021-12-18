@@ -1,50 +1,40 @@
 #!/usr/bin/env python3
+from itertools import permutations
 from math import floor, ceil
-from os import register_at_fork
+from copy import deepcopy
 
-def add_to_first_number_left(number, idx):
+# Searches for a regular number to the left on the same depth level.
+# If found, the top regular number from lstack is added.
+def add_left(number, idx):
 
     global lstack
 
     for i in range(idx - 1, -1, -1):
         if isinstance(number[i], list):
-            if add_to_first_number_left(number[i], len(number[i])):
+            if add_left(number[i], len(number[i])):
                 return True
         else:
             number[i] += lstack.pop()
             return True
     return False
 
-def add_to_first_number_right(number, idx) -> bool:
+# Searches for a regular number to the right on the same depth level.
+# If found, the top regular number from lstack is added.
+def add_right(number, idx) -> bool:
 
     global rstack
 
     for i in range(idx + 1, len(number)):
         if isinstance(number[i], list):
-            if add_to_first_number_right(number[i], -1):
+            if add_right(number[i], -1):
                 return True
         else:
             number[i] += rstack.pop()
             return True
     return False
 
-def is_pair(item):
-
-    return isinstance(item, list) \
-        and len(item) == 2 \
-        and isinstance(item[0], int) \
-        and isinstance(item[1], int)
-
-def stacks():
-
-    global lstack
-    global rstack
-
-    return f"[l:{lstack},r:{rstack}]"
-
-#
-# [[[[[9,8],1],2],3],4]
-#
+# Dives recursively into sublists and performns
+# explode and split actions
 def reduce(number, number_part = [], depth = 0):
 
     global action_occured
@@ -55,9 +45,8 @@ def reduce(number, number_part = [], depth = 0):
     if not number_part:
         number_part = number
 
+    # Explode action
     if mode == 0 and depth == 4:
-        if not is_pair(number_part):
-            raise AssertionError("Non-pair at depth 4!")
         lstack.append(number_part[0])
         rstack.append(number_part[-1])
         action_occured = True
@@ -65,135 +54,103 @@ def reduce(number, number_part = [], depth = 0):
 
     for i in range(len(number_part)):
 
+        # Split action
         if mode == 1 and isinstance(number_part[i], int) and number_part[i] > 9:
-            if action_occured:
-                raise AssertionError("KKK")
-            print("SPLIT")
             number_part[i] = [floor(number_part[i] / 2), ceil(number_part[i] / 2)]
             action_occured = True
             return number_part
 
         if isinstance(number_part[i], list):
 
-            if action_occured:
-                raise AssertionError("BUBU")
-
+            # Go deeper :)
             number_part[i] = reduce(number, number_part[i], depth + 1)
 
+            # Try to add numbers from stack to neighbours,
+            # otherwise they are kept for higher levels
             if action_occured:
                 if len(lstack) > 0:
-                    add_to_first_number_left(number_part, i)
-                    print("after add_to_first_number_left", number_part, stacks())
+                    add_left(number_part, i)
                 if len(rstack) > 0:
-                    add_to_first_number_right(number_part, i)
-                    print("after add_to_first_number_right", number_part, stacks())
+                    add_right(number_part, i)
                 return number_part
 
     return number_part
 
-def explode(number, number_part, depth = 0):
-
-    print(id(number))
-
-    global action_occured
-    global lstack
-    global rstack
-
-    if action_occured:
-        print("JJJ")
-        exit()
-
-    if depth == 4 and not action_occured:
-        lstack.append(number_part[0])
-        rstack.append(number_part[-1])
-        action_occured = True
-        print("EXPLODED", number_part, lstack, rstack, action_occured)
-        return 0
-
-    for i in range(len(number_part)):
-
-        if isinstance(number_part[i], int) and number_part[i] > 9:
-            print("SPLIT")
-            number_part[i] = [floor(number_part[i] / 2), ceil(number_part[i] / 2)]
-            action_occured = True
-            #return number_part
-
-        if isinstance(number_part[i], list) and not action_occured:
-
-            part = explode(number_part[i], depth + 1)
-
-            if (len(lstack)) > 0:
-                print("  before add_to_first_number_part_left", number_part)
-                add_to_first_number_part_left(number_part, i)
-                print("  after add_to_first_number_part_left", number_part, lstack)
-
-            # Then, the entire exploding pair is replaced with the regular number_part 0.
-            number_part[i] = part
-        
-        if action_occured:
-            print("ABORT AFTERT ACTION", lstack, rstack)
-
-    return number_part
-
-def task1(data):
+# Repeated reduction of a single paired snailfish number
+# until no more actions can be done
+def reduce_pair(number):
 
     global lstack
     global rstack
     global action_occured
     global mode
 
-    lstack = []
-    rstack = []
-    action_occured = False
+    while True:
 
-    lines = [eval(x) for x in data.splitlines()]
+        at_least_one_action = False
 
-    for idx in range(1, len(data.splitlines())):
-
-        number = [lines[idx - 1]] + [lines[idx]]
-
-        print("NUMBERS", number)
-
+        # First we do all possible explodes
+        mode = 0
         while True:
-
-            at_least_one_action = False
-
-            # first we do all possible explodes
-            mode = 0
-            while True:
-                lstack = []
-                rstack = []
-                action_occured = False
-                number = reduce(number)
-                if action_occured:
-                    at_least_one_action = True
-                print("After action", str(number).replace(" ", ""), lstack, rstack)
-                if not action_occured:
-                    break
-
-            # next we do at most one split, because we need to check for explodes after each split
-            mode = 1
             lstack = []
             rstack = []
             action_occured = False
             number = reduce(number)
             if action_occured:
                 at_least_one_action = True
-            print("After action", str(number).replace(" ", ""), lstack, rstack)
-
-            if not at_least_one_action:
+            if not action_occured:
                 break
 
-        lines[idx] = number
+        # next we do at most one split
+        # because we need to check for explodes after each split
+        mode = 1
+        lstack = []
+        rstack = []
+        action_occured = False
+        number = reduce(number)
+        if action_occured:
+            at_least_one_action = True
+
+        if not at_least_one_action:
+            break
+
+    return number
+
+# Calculates the magnitute of a snailfish number
+def get_mag(elem):
+    mag = 0
+    if isinstance(elem, int):
+        mag += elem
+    else:
+        mag += 3 * get_mag(elem[0]) + 2 * get_mag(elem[1]) 
+    return mag
+
+def task1(data):
+
+    # Iterate pairwise over input lines
+    # For 3.10. see https://docs.python.org/3/library/itertools.html#itertools.pairwise :)
+    lines = [eval(x) for x in data.splitlines()]
+    for idx in range(1, len(data.splitlines())):
+        number = [lines[idx - 1]] + [lines[idx]]
+        lines[idx] = reduce_pair(number)
     
-    print(str(number).replace(" ", ""))
+    print(f"Task 1 - magnitude of the final sum: {get_mag(number)}")
 
 def task2(data):
-    pass
+
+    max_mag = 0
+
+    for number in permutations([eval(line) for line in data.splitlines()],2):
+        new_number = reduce_pair(deepcopy(list(number)))
+        mag = get_mag(new_number)
+        if mag > max_mag:
+            max_mag = mag
+
+    print(f"Task 2 - largest magnitude: {max_mag}")
 
 if __name__ == "__main__":
 
-    example = 1
+    example = 0
 
     with open('example.txt' if example else 'input.txt', 'r') as f:
         data = f.read().strip()
