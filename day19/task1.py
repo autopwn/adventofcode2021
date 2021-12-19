@@ -38,7 +38,6 @@ def rotate(vec, orientation):
         orientation[1]), orientation[2])
 
 def calculate_rotation_matches(vec1, vec2):
-
     res = set()
     x = y = z = 0
     for x in (0,90,180,270):
@@ -51,59 +50,38 @@ def calculate_rotation_matches(vec1, vec2):
     return res
 
 def compare_scanners(s1, s2):
-
     orientation_counter = Counter()
-
     matches = defaultdict(Counter)
-
     for s1p1 in s1:
         for s1p2 in s1:
             if s1p1 == s1p2:
                 continue
             v_s1p1_s1p2 = get_vector(s1p1, s1p2)
             l_v_s1p1_s1p2 = vec_len(v_s1p1_s1p2)
-
             for s2p1 in s2:
                 for s2p2 in s2:
                     if s2p1 == s2p2:
                         continue
                     v_s2p1_s2p2 = get_vector(s2p1, s2p2)
                     l_v_s2p1_s2p2 = vec_len(v_s2p1_s2p2)
-
                     # vectors of both scanner have same length
                     if l_v_s1p1_s1p2 == l_v_s2p1_s2p2:
                         # try to correctly orientate vectors
                         orientations = calculate_rotation_matches(v_s1p1_s1p2, v_s2p1_s2p2)
                         if len(orientations) > 0:
-                            #print("MAYBE MATCHING", s1p1, s1p2, s2p1, s2p2)
                             matches[s1p1][s2p1] += 1
                             for o in orientations:
                                 orientation_counter[o] += 1
 
-    print(orientation_counter.most_common(1))
-    
+    filtered_matches = []
+
     for ms1, ms2 in matches.items():
-        print(ms1, ms2.most_common(1))
+        filtered_matches.append((ms1, ms2.most_common(1)))
 
-    exit()
-    all_vectors_s1 = [(x[0], x[1]) for x in permutations(s1,2)]
-    all_vectors_s2 = [(x[0], x[1]) for x in permutations(s2,2)]
+    if len(filtered_matches) < 12:
+        return None, None
 
-    print(all_vectors_s1)
-    exit()
-
-    for v1 in all_vectors_s1:
-        for v2 in all_vectors_s2:
-            c = v1.calculate_rotation_matches(v2)
-            exit()
-            if c:
-                print(c, v1, v2)
-                exit()
-                for cc in c:
-                    counter[cc] += 1
-
-    print("FOO")
-    return counter.most_common(1)
+    return filtered_matches, orientation_counter.most_common(1)[0][0]
 
 def task1(data):
 
@@ -115,10 +93,15 @@ def task1(data):
 
         scanners.append(beacons)
 
-    #print(list([len(x) for x in scanners]))
+    for s1, s2 in combinations(range(len(scanners)), 2):
+        print(f"Match {s1} and {s2}")
+        matches, orientation = compare_scanners(scanners[s1], scanners[s2])
+        if matches != None:
+            print(f"Scanners {s1} and {s2} overlapp with orientation {orientation}")
 
-    compared = compare_scanners(scanners[0], scanners[1])
-    #print(compared)
+            print("TRY TO BE FANCY")
+            exit()
+        print("----------------------------\n")
 
     # s0 -> s1 [((0, 180, 0), 132)]
 
