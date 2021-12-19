@@ -76,7 +76,7 @@ def compare_scanners(s1, s2):
     filtered_matches = []
 
     for ms1, ms2 in matches.items():
-        filtered_matches.append((ms1, ms2.most_common(1)))
+        filtered_matches.append((ms1, ms2.most_common(1)[0][0]))
 
     if len(filtered_matches) < 12:
         return None, None
@@ -99,9 +99,17 @@ def task1(data):
         if matches != None:
             print(f"Scanners {s1} and {s2} overlapp with orientation {orientation}")
 
-            print("TRY TO BE FANCY")
-            exit()
+            for match_s1, match_s2 in matches:
+                #print(match_s1, match_s2)
+                #print(f"match_s1: {match_s1}")
+                #print(f"match_s2: {match_s2}")
+                s2_reorientated = rotate(match_s2, orientation)
+                #print(f"s2_reorientated: {s2_reorientated}")
+                s2_from_pov_of_s1 = (match_s1[0] - s2_reorientated[0], match_s1[1] - s2_reorientated[1], match_s1[2] - s2_reorientated[2])
+                print(f"s2_from_pov_of_s1: {s2_from_pov_of_s1}")
+
         print("----------------------------\n")
+
 
     # s0 -> s1 [((0, 180, 0), 132)]
 
