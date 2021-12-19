@@ -104,10 +104,21 @@ def task1(data):
                 #print(f"match_s1: {match_s1}")
                 #print(f"match_s2: {match_s2}")
                 s2_reorientated = rotate(match_s2, orientation)
+                print(match_s1, match_s2, s2_reorientated)
                 #print(f"s2_reorientated: {s2_reorientated}")
                 s2_from_pov_of_s1 = (match_s1[0] - s2_reorientated[0], match_s1[1] - s2_reorientated[1], match_s1[2] - s2_reorientated[2])
-                print(f"s2_from_pov_of_s1: {s2_from_pov_of_s1}")
+                print(f"s2_from_pov_of_s1: {s2_from_pov_of_s1}\n")
 
+            v_s1_s2 = (68, -1246, -43)
+            
+            for s2p in scanners[s2]:
+                t = rotate(s2p, (0, 180, 0))
+                tt = (v_s1_s2[0] + t[0], v_s1_s2[1] + t[1], v_s1_s2[2] + t[2])
+                print(tt)
+            
+            exit()
+
+            exit()
         print("----------------------------\n")
 
 
