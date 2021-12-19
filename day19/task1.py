@@ -21,9 +21,9 @@ def rotate_x(vec, r = 0):
 
 def rotate_y(vec, r = 0):
     if r == 0: return  vec
-    if r == 90: return (-vec[2], vec[1], vec[0])
+    if r == 90: return (vec[2], vec[1], -vec[0])
     if r == 180: return (-vec[0], vec[1], -vec[2])
-    if r == 270: return (vec[2], vec[1], -vec[0])
+    if r == 270: return (-vec[2], vec[1], vec[0])
     raise AssertionError("Invalid rotation")
 
 def rotate_z(vec, r = 0):
@@ -83,9 +83,24 @@ def compare_scanners(s1, s2):
 
     return filtered_matches, orientation_counter.most_common(1)[0][0]
 
+p = (1,2,3)
+print(rotate_x(p, 90))
+print(rotate_y(p, 90))
+print(rotate_z(p, 90))
+
+print(rotate_x(p, 180))
+print(rotate_y(p, 180))
+print(rotate_z(p, 180))
+
+print(rotate_x(p, 270))
+print(rotate_y(p, 270))
+print(rotate_z(p, 270))
+
+exit()
 def task1(data):
 
     scanners = []
+    beacons_seen_from_s1 = []
 
     for scanner, beacons in [(int(y[0].split(' ')[2]), \
         [tuple([int(w) for w in z.split(',')]) \
@@ -93,33 +108,43 @@ def task1(data):
 
         scanners.append(beacons)
 
+    # beacons seen by base scanner
+    beacons_seen_from_s1 += scanners[0]
+
     for s1, s2 in combinations(range(len(scanners)), 2):
-        print(f"Match {s1} and {s2}")
         matches, orientation = compare_scanners(scanners[s1], scanners[s2])
         if matches != None:
             print(f"Scanners {s1} and {s2} overlapp with orientation {orientation}")
+
+            mc = Counter()
 
             for match_s1, match_s2 in matches:
                 #print(match_s1, match_s2)
                 #print(f"match_s1: {match_s1}")
                 #print(f"match_s2: {match_s2}")
                 s2_reorientated = rotate(match_s2, orientation)
-                print(match_s1, match_s2, s2_reorientated)
+                #print(match_s1, match_s2, s2_reorientated)
                 #print(f"s2_reorientated: {s2_reorientated}")
                 s2_from_pov_of_s1 = (match_s1[0] - s2_reorientated[0], match_s1[1] - s2_reorientated[1], match_s1[2] - s2_reorientated[2])
-                print(f"s2_from_pov_of_s1: {s2_from_pov_of_s1}\n")
+                #print(f"s2_from_pov_of_s1: {s2_from_pov_of_s1}\n")
+                mc[s2_from_pov_of_s1] += 1
 
-            v_s1_s2 = (68, -1246, -43)
-            
-            for s2p in scanners[s2]:
-                t = rotate(s2p, (0, 180, 0))
-                tt = (v_s1_s2[0] + t[0], v_s1_s2[1] + t[1], v_s1_s2[2] + t[2])
-                print(tt)
-            
-            exit()
+            if mc.most_common(1)[0][1] < 12:
+                print("WRONG ROTATION", orientation)
 
-            exit()
-        print("----------------------------\n")
+            # v_s1_s2 = (68, -1246, -43)
+            
+            # for s2p in scanners[s2]:
+            #     t = rotate(s2p, (0, 180, 0))
+            #     tt = (v_s1_s2[0] + t[0], v_s1_s2[1] + t[1], v_s1_s2[2] + t[2])
+            #     beacons_seen_from_s1.append(tt)
+
+            # print(beacons_seen_from_s1)
+            # print(len(beacons_seen_from_s1))
+            # print(len(set(beacons_seen_from_s1)))
+
+            # exit()
+        #print("----------------------------\n")
 
 
     # s0 -> s1 [((0, 180, 0), 132)]
