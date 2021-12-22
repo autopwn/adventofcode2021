@@ -13,8 +13,8 @@ class Cuboid():
                 (self.max_z - self.min_z + 1)
 
     def __repr__(self):
-        return f"<{self.min_x},{self.max_x},{self.min_y},{self.max_y},\
-                {self.min_z},{self.max_z}/{self.volume}>"
+        return f"<{self.min_x},{self.max_x},{self.min_y},{self.max_y}," \
+            f"{self.min_z},{self.max_z}/{self.volume}>"
 
     def is_enclosing(self, cuboid):
         return self.get_intersection(cuboid).volume == cuboid.volume
