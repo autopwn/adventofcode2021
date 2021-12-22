@@ -1,14 +1,11 @@
 from cuboid import Cuboid
 
 def solve(data):
-
     discounts = []
     total_active_cubes = 0
 
     for line in reversed(data):
-
         action, cuboid = [x for x in line.split(' ')]
-
         cuboid = Cuboid(*[item for sublist in [[int(y) \
             for y in x.split('=')[1].split('..')] \
             for x in cuboid.split(',')] for item in sublist])
